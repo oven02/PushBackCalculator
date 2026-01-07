@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Push Back Score Calculator</title>
+
+    <style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 15px;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* The Header Scores (Red on Left, Blue on Right) */
+.score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.score-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.red-text { color: #d32f2f; }
+.blue-text { color: #1976d2; }
+
+hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+
+/* Button Styling */
+button {
+    padding: 12px 16px;
+    margin: 5px 2px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* Team Specific Buttons */
+.btn-red { background-color: #ffcdd2; color: #b71c1c; }
+.btn-blue { background-color: #bbdefb; color: #0d47a1; }
+
+/* Toggle Buttons (Goals) */
+.btn-none { background-color: #e0e0e0; color: #616161; width: 100%; margin-bottom: 10px; }
+.btn-blue-win { background-color: #1976d2; color: white; width: 100%; margin-bottom: 10px; }
+.btn-red-win { background-color: #d32f2f; color: white; width: 100%; margin-bottom: 10px; }
+
+/* Layout for Block Controls */
+.block-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.team-section {
+    flex: 1;
+    text-align: center;
+}
+    </style>
+</head>
+<body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <h1>Match Score</h1>
+
+    <div id="app">
+        <div class="score-header">
+        <h2 class="red-text">Red: {{ redScore }}</h2>
+        <h2 class="blue-text">Blue: {{ blueScore }}</h2>
+    </div>
+        <hr />
+        <h3>Blocks</h3>
+        <div class="block-controls">
+        <!-- Red Section -->
+        <div class="team-section">
+            <button class="btn-red" @click="addRed()">+</button>
+            <button class="btn-red" @click="subRed()">-</button>
+            <p>Red Blocks: <strong>{{redBlocks}}</strong></p>
+        </div>
+        <!-- Blue Section -->
+        <div class="team-section">
+            <button class="btn-blue" @click="addBlue()">+</button>
+            <button class="btn-blue" @click="subBlue()">-</button>
+            <p>Blue Blocks: <strong>{{blueBlocks}}</strong></p>
+        </div>
+    </div>
+        <hr />
+        <button :class="{'btn-none': long1==0, 'btn-blue-win': long1==1, 'btn-red-win': long1==2}" @click="long1Togg">
+            Long Goal 1: {{ long1 == 0 ? 'None' : (long1 == 1 ? 'Blue' : 'Red') }}
+        </button>
+
+        <button :class="{'btn-none': long2==0, 'btn-blue-win': long2==1, 'btn-red-win': long2==2}" @click="long2Togg">
+            Long Goal 2: {{ long2 == 0 ? 'None' : (long2 == 1 ? 'Blue' : 'Red') }}
+        </button>
+
+        <button :class="{'btn-none': low==0, 'btn-blue-win': low==1, 'btn-red-win': low==2}" @click="lowTogg">
+            Low Goal: {{ low == 0 ? 'None' : (low == 1 ? 'Blue' : 'Red') }}
+        </button>
+
+        <button :class="{'btn-none': middle==0, 'btn-blue-win': middle==1, 'btn-red-win': middle==2}" @click="midTogg">
+            Middle Goal: {{ middle == 0 ? 'None' : (middle == 1 ? 'Blue' : 'Red') }}
+        </button>
+
+        <button :class="{'btn-none': auton==0, 'btn-blue-win': auton==1, 'btn-red-win': auton==2}" @click="autonTogg">
+            Auton Bonus: {{ auton == 0 ? 'None' : (auton == 1 ? 'Blue' : 'Red') }}
+        </button>
+        <hr />
+        <button class="btn-red" @click="parkRTogg">Red Parked Robots {{redParked}}</button>
+        <button class="btn-blue" @click="parkBTogg">Blue Parked Robots {{blueParked}}</button>
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    redScore: 5,
+                    blueScore: 5,
+                    redBlocks: 0,
+                    blueBlocks: 0,
+                    long1:0,
+                    long2:0,
+                    low:0,
+                    middle:0,
+                    auton:0,
+                    redParked:0,
+                    blueParked:0
+                }
+            },
+            methods: {
+                addRed(){
+                    if(this.redBlocks + this.blueBlocks < 44){
+                    this.redBlocks++
+                    }
+                    this.calScore()
+                },
+                addBlue(){
+                    if(this.redBlocks + this.blueBlocks < 44){
+                    this.blueBlocks++
+                    }
+                    this.calScore()
+                },
+                subRed(){
+                    if(this.redBlocks > 0){
+                    this.redBlocks--
+                    }
+                    this.calScore()
+                },
+                subBlue(){
+                    if(this.blueBlocks > 0){
+                        this.blueBlocks--
+                    }
+                    this.calScore()
+                },
+                long1Togg(){
+                    this.long1 ++
+                    if(this.long1 > 2){
+                        this.long1 = 0
+                    }
+                    this.calScore()
+                },
+                long2Togg(){
+                    this.long2 ++
+                    if(this.long2 > 2){
+                        this.long2 = 0
+                    }
+                    this.calScore()
+                },
+                lowTogg(){
+                    this.low ++
+                    if(this.low > 2){
+                        this.low = 0
+                    }
+                    this.calScore()
+                },
+                midTogg(){
+                    this.middle ++
+                    if(this.middle > 2){
+                        this.middle = 0
+                    }
+                    this.calScore()
+                },
+                autonTogg(){
+                    this.auton ++
+                    if(this.auton > 2){
+                        this.auton = 0
+                    }
+                    this.calScore()
+                },
+                parkRTogg(){
+                    this.redParked ++
+                    if(this.redParked > 2){
+                        this.redParked = 0
+                    }
+                    this.calScore()
+                },
+                parkBTogg(){
+                    this.blueParked ++
+                    if(this.blueParked > 2){
+                        this.blueParked = 0
+                    }
+                    this.calScore()
+                },
+                calScore(){
+                    this.redScore = this.redBlocks * 3
+                    if(this.long1 == 2){
+                        this.redScore += 10
+                    }
+                    if(this.long2 == 2){
+                        this.redScore += 10
+                    }
+                    if(this.low == 2){
+                        this.redScore += 6
+                    }
+                    if(this.middle == 2){
+                        this.redScore += 8
+                    }
+                    if(this.auton == 2){
+                        this.redScore += 10
+                    }
+                    if(this.redParked == 1){
+                        this.redScore += 8
+                    }
+                    if(this.redParked == 2){
+                        this.redScore += 30
+                    }
+
+                    this.blueScore = this.blueBlocks * 3
+                    if(this.long1 == 1){
+                        this.blueScore += 10
+                    }
+                    if(this.long2 == 1){
+                        this.blueScore += 10
+                    }
+                    if(this.low == 1){
+                        this.blueScore += 6
+                    }
+                    if(this.middle == 1){
+                        this.blueScore += 8
+                    }
+                    if(this.auton == 1){
+                        this.blueScore += 10
+                    }
+                    if(this.blueParked == 1){
+                        this.blueScore += 8
+                    }
+                    if(this.blueParked == 2){
+                        this.blueScore += 30
+                    }
+
+                    if(this.auton == 0){
+                        this.blueScore += 5
+                        this.redScore += 5
+                    }
+                    
+                }
+            }
+        });
+        app.mount('#app');
+    </script>
+    
+    <!-- Load external JavaScript (assuming you have a scripts.js file) -->
+    <script src="scripts.js"></script>
+</body>
+</html>
