@@ -1,0 +1,145 @@
+ <!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Push Back Score Calculator</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <h1>Skills Score</h1>
+    <div id="link">
+    <a href="index.html">Go to Match</a>
+    </div>
+    <hr />
+    <div id="app">
+        <div class="score-header">
+            <h2 class="blue-text">Score: {{ score }}</h2>
+        </div>
+        <hr />
+        <h3>Blocks</h3>
+        <div class="block-controls">
+            <div class="team-section">
+                <button class="btn-blue" @click="addBlock()">+</button>
+                <button class="btn-blue" @click="subBlock()">-</button>
+                <p>Blocks: <strong>{{blocks}}</strong></p>
+            </div>
+        </div>
+        <hr />
+            <button :class="{'btn-none': !long1, 'btn-blue-win': long1}" @click="long1Togg">
+            Long Goal 1: {{ !long1 ? 'None' : 'Yes' }}
+            </button>
+
+            <button :class="{'btn-none': !long2, 'btn-blue-win': long2}" @click="long2Togg">
+                Long Goal 2: {{ !long2 ? 'None' : 'Yes' }}
+            </button>
+
+            <button :class="{'btn-none': !low, 'btn-blue-win': low}" @click="lowTogg">
+                Low Goal: {{ !low ? 'None' : 'Yes' }}
+            </button>
+
+            <button :class="{'btn-none': middle==0, 'btn-blue-win': middle==1}" @click="midTogg">
+                Middle Goal: {{ !middle ? 'None' : 'Yes' }}
+            </button>
+
+            <button :class="{'btn-none': parked==0, 'btn-blue-win': parked==1}" @click="parkTogg">
+                Park: {{ !parked ? 'None' : 'Yes' }}
+            </button>
+            <hr />
+        <div id="bottom">
+            <button class="btn-blue" @click="zoneTogg">Cleared Zones {{zone}}</button>
+            <button class="btn-blue" @click="loadTogg">Cleared Loaders {{load}}</button>
+        </div>
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    score: 0,
+                    blocks: 0,
+                    long1:false,
+                    long2:false,
+                    low:false,
+                    middle:false,
+                    parked:false,
+                    zone: 0,
+                    load:0
+                }
+            },
+            methods: {
+                addBlock(){
+                    if(this.blocks < 44){
+                    this.blocks++
+                    }
+                    this.calScore()
+                },
+                subBlock(){
+                    if(this.blocks > 0){
+                    this.blocks--
+                    }
+                    this.calScore()
+                },
+                long1Togg(){
+                    this.long1 = ! this.long1
+                    this.calScore()
+                },
+                long2Togg(){
+                    this.long2 = ! this.long2
+                    this.calScore()
+                },
+                lowTogg(){
+                    this.low = ! this.low
+                    this.calScore()
+                },
+                midTogg(){
+                    this.middle = ! this.middle
+                    this.calScore()
+                },
+                parkTogg(){
+                    this.parked = ! this.parked
+                    this.calScore()
+                },
+                zoneTogg(){
+                    this.zone += 1
+                    if(this.zone > 2){
+                        this.zone = 0
+                    }
+                    this.calScore()
+                },
+                loadTogg(){
+                    this.load += 1
+                    if(this.load > 4){
+                        this.load = 0
+                    }
+                    this.calScore()
+                },
+                calScore(){
+                    this.score = this.blocks
+                    this.score += this.zone * 5
+                    this.score += this.load * 5
+                    if(this.long1){
+                        this.score += 5
+                    }
+                    if(this.long2){
+                        this.score += 5
+                    }
+                    if(this.low){
+                        this.score += 10
+                    }
+                    if(this.middle){
+                        this.score += 10
+                    }
+                    if(this.parked){
+                        this.score += 15
+                    }   
+                }
+            }
+        });
+        app.mount('#app');
+    </script>
+
+</body>
+</html>
